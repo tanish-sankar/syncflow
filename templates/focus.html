@@ -1,0 +1,907 @@
+<html>
+<head>
+    <title>Time to lock in</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #2d2c2c;
+            color: #FFFFFF;
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body:not(.dark-mode) {
+            background-color: #f0f0f0;
+            color: #333333;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #000;
+            overflow-x: hidden;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 100;
+        }
+        body:not(.dark-mode) .sidebar { background-color: #e0e0e0; }
+
+        .sidebar .links { padding-top: 60px; flex-grow: 1; }
+
+        .sidebar a {
+            padding: 15px 24px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #FFFFFF;
+            transition: color 0.3s, background-color 0.3s;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #dc5454;
+            color: #fff;
+        }
+        body:not(.dark-mode) .sidebar a { color: #333; }
+        body:not(.dark-mode) .sidebar a:hover { background-color: #dc5454; color: #fff; }
+
+        .logout-container {
+            padding: 20px;
+            border-top: 1px solid #444;
+        }
+        body:not(.dark-mode) .logout-container { border-top: 1px solid #ccc;}
+
+        .logout-btn {
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: block;
+            text-align: center;
+            background-color: #000;
+            color: #dc5454;
+            transition: 0.3s;
+        }
+        .logout-btn:hover {
+            background-color: #dc5454;
+            color: #000;
+        }
+        body:not(.dark-mode) .logout-btn {
+            background-color: #fff;
+            color: #dc5454;
+        }
+        body:not(.dark-mode) .logout-btn:hover {
+            background-color: #dc5454;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding-top: 70px;
+            width: 100%;
+        }
+
+        .view-content {
+            width: 100%;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .view-content.hidden { display: none; }
+
+        .openbtn {
+            font-size: 30px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: #fff;
+            padding: 10px 15px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 101;
+            transition: left 0.3s, color 0.3s;
+        }
+        body:not(.dark-mode) .openbtn { color: #000; }
+
+        .app-title {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            z-index: 99;
+            display: flex;
+            align-items: center;
+            height: 60px;
+            padding: 5px 10px;
+        }
+        .app-title img {
+            max-height: 100%;
+            width: auto;
+            border-radius: 8px;
+            border: 2px solid #fff;
+        }
+        body:not(.dark-mode) .app-title img { border-color: #ccc; }
+
+        .timer-container {
+            text-align: center;
+            padding: 80px;
+            border-radius: 15px;
+            background-color: #000;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 90vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        body:not(.dark-mode) .timer-container {
+            background-color: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .timer-header-area { margin-bottom: 15px; width: 100%; }
+        #timerTitle {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+        }
+        body:not(.dark-mode) #timerTitle { color: #2d2c2c; }
+
+        /* Circular Progress Ring */
+        .progress-ring-container {
+            position: relative;
+            width: 320px;
+            height: 320px;
+            margin: 0 auto 30px;
+        }
+
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring-circle {
+            transition: stroke-dashoffset 0.5s ease;
+            stroke: #dc5454;
+            stroke-width: 8;
+            fill: none;
+        }
+
+        .progress-ring-bg {
+            stroke: #333;
+            stroke-width: 8;
+            fill: none;
+        }
+        body:not(.dark-mode) .progress-ring-bg {
+            stroke: #e0e0e0;
+        }
+
+        .timer-display-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #timer {
+            font-size: 3rem;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: #fff;
+            text-align: center;
+        }
+        body:not(.dark-mode) #timer { color: #2d2c2c; }
+
+        .progress-percentage {
+            font-size: 1rem;
+            color: #ccc;
+            margin-top: 5px;
+        }
+        body:not(.dark-mode) .progress-percentage { color: #666; }
+
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .justify-center { justify-content: center; }
+        .items-center { align-items: center; }
+        .gap-4 { gap: 1rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mt-1 { margin-top: 0.25rem; }
+        .mt-6 { margin-top: 1.5rem; }
+        .p-4 { padding: 1rem; }
+
+        .rounded-lg { border-radius: 12px; }
+        .shadow-md { box-shadow: 0 5px 15px rgba(0,0,0,0.4);}
+        body:not(.dark-mode) .shadow-md { box-shadow: 0 5px 15px rgba(0,0,0,0.2);}
+        .w-full { width: 100%; }
+        .w-16 { width: 4rem; }
+        .max-w-xs { max-width: 20rem; }
+        .text-sm { font-size: 0.875rem; }
+        .text-xl { font-size: 1.25rem; }
+        .uppercase { text-transform: uppercase; }
+        .font-semibold { font-weight: 600; }
+        .font-bold { font-weight: 700; }
+        .tracking-wide { letter-spacing: 0.025em; }
+        .text-center { text-align: center; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+
+        .bg-gray-800 { background-color: #555; }
+        body:not(.dark-mode) .bg-gray-800 { background-color: #fff; }
+
+        .text-gray-400 { color: #ccc; }
+        body:not(.dark-mode) .text-gray-400 { color: #666; }
+
+        .picker-wheel-wrapper { 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            margin: 20px 0; 
+            gap: 20px; 
+        }
+
+        .picker-column { display: flex; flex-direction: column; align-items: center; }
+
+        .picker-label {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+        body:not(.dark-mode) .picker-label { color: #aaa; }
+
+        .picker-wheel-container {
+            position: relative;
+            height: 220px;
+            width: 80px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.05);
+        }
+        body:not(.dark-mode) .picker-wheel-container { background: rgba(0,0,0,0.05); }
+
+        .highlight-line {
+            position: absolute;
+            left: 0; right: 0; height: 2px; z-index: 10;
+        }
+        .highlight-line.top { top: 50%; transform: translateY(-25px);}
+        .highlight-line.bottom { top: 50%; transform: translateY(25px);}
+        body:not(.dark-mode) .picker-wheel-container .highlight-line { background-color: #e0e0e0; }
+
+        .picker-wheel-container::before,
+        .picker-wheel-container::after {
+            content:'';
+            position:absolute;
+            left:0; right:0;
+            height:45%;
+            z-index:10;
+            pointer-events:none;
+            background: linear-gradient(to bottom, #000, rgba(0,0,0,0));
+        }
+        body:not(.dark-mode) .picker-wheel-container::before,
+        body:not(.dark-mode) .picker-wheel-container::after {
+            background: linear-gradient(to bottom, #f0f0f0, rgba(240,240,240,0));
+        }
+
+        .picker-wheel {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: center;
+            transition: transform 0.2s cubic-bezier(0.25,0.1,0.25,1);
+        }
+        .picker-wheel li {
+            height: 50px;
+            line-height: 50px;
+            font-size: 2rem;
+            font-weight: 500;
+            opacity: 0.3;
+            color: rgba(255,255,255,0.3);
+            transition: 0.2s;
+        }
+        .picker-wheel li.selected {
+            font-weight: 700;
+            font-size: 3rem;
+            color: #fff;
+            opacity: 1;
+        }
+        body:not(.dark-mode) .picker-wheel li { color: rgba(51,51,51,0.3);}
+        body:not(.dark-mode) .picker-wheel li.selected { color: #333; }
+
+        input[type="number"] {
+            background-color: #555;
+            color: #fff;
+            border: 1px solid #666;
+            text-align: center;
+        }
+        body:not(.dark-mode) input[type="number"] {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+        }
+
+        input[type="number"]:focus {
+            outline: none; border-color: #888;
+        }
+        body:not(.dark-mode) input[type="number"]:focus {
+            outline: none; border-color: #999;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none; margin: 0;
+        }
+
+        .controls button {
+            padding: 20px 30px;
+            font-size: 18px;
+            margin: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: #000;
+            border: 2px solid #fff;
+            color: #fff;
+            transition: 0.3s;
+        }
+        .controls button:hover {
+            background-color: #fff;
+            color: #000;
+        }
+        body:not(.dark-mode) .controls button {
+            background-color: #e0e0e0;
+            border: 2px solid #333;
+            color: #333;
+        }
+        body:not(.dark-mode) .controls button:hover {
+            background-color: #dc5454;
+            border-color: #dc5454;
+            color: #fff;
+        }
+
+        .controls button svg {
+            width: 24px; height: 24px; display:inline-block; vertical-align: middle;
+        }
+
+        .transition-all { transition: all 0.3s; }
+        .duration-300 { transition-duration: 0.3s; }
+
+        @media (max-width: 768px) {
+            .openbtn { font-size: 24px; padding: 8px 12px; }
+            .app-title { top:15px; right:15px; height:40px; padding:3px 8px;}
+            .app-title img { max-height:40px; }
+            #timerTitle { font-size:2rem;}
+            #timer { font-size:2.5rem;}
+            .timer-container { padding:40px;}
+            .timer-header-area { padding:0 20px;}
+            .controls button { padding:15px 25px;font-size:16px;}
+            .progress-ring-container { width: 280px; height: 280px; }
+            .progress-percentage { font-size: 0.9rem; }
+            .sm\:flex-row { flex-direction: row; }
+            .sm\:w-auto { width: auto; }
+        }
+    </style>
+</head>
+<body class="dark-mode">
+
+<div id="mySidebar" class="sidebar">
+    <div class="links">
+        <a href="javascript:void(0)" onclick="closeNav()">✕ Close</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('focus') }}">Focus</a>
+        <a href="{{ url_for('stats') }}">Stats</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+    </div>
+    <div class="logout-container">
+        <a class="logout-btn" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</div>
+
+<button class="openbtn" onclick="openNav()">☰</button>
+
+<div class="app-title">
+    <img src="/static/Screenshot 2025-05-11 at 9.04.47 PM.png" alt="SyncFlow Logo">
+    </div>
+
+
+<div id="main" class="main-content">
+    <div id="timerView" class="view-content active">
+        <div class="timer-container">
+            <div class="timer-header-area">
+                <h3 id="timerTitle">Focus</h3>
+            </div>
+
+            <!-- Circular Progress Ring -->
+            <div class="progress-ring-container">
+                <svg class="progress-ring" width="320" height="320">
+                    <circle class="progress-ring-bg" cx="160" cy="160" r="150"></circle>
+                    <circle id="progressCircle" class="progress-ring-circle" cx="160" cy="160" r="150"></circle>
+                </svg>
+                <div class="timer-display-wrapper">
+                    <div id="timer">00:00:00</div>
+                    <div class="progress-percentage" id="progressPercentage">0%</div>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 text-center mb-6">
+                <div class="p-4 rounded-lg bg-gray-800 shadow-md w-full sm:w-auto">
+                    <div class="text-sm uppercase text-gray-400 font-semibold tracking-wide">Focus Session</div>
+                    <div id="focusDurationDisplay" class="text-xl font-bold mt-1">0h 0m 0s</div>
+                </div>
+                <div class="p-4 rounded-lg bg-gray-800 shadow-md w-full sm:w-auto">
+                    <div class="text-sm uppercase text-gray-400 font-semibold tracking-wide">Regular Break</div>
+                    <div id="breakDurationDisplay" class="text-xl font-bold mt-1">0m 0s</div>
+                </div>
+            </div>
+
+            <div class="picker-wheel-wrapper">
+                <div class="picker-column">
+                    <span class="picker-label">Hours</span>
+                    <div id="hoursPickerContainer" class="picker-wheel-container" data-type="hours">
+                        <div class="highlight-line top"></div>
+                        <div class="highlight-line bottom"></div>
+                        <ul id="hoursPickerWheel" class="picker-wheel"></ul>
+                    </div>
+                </div>
+                <div class="picker-column">
+                    <span class="picker-label">Minutes</span>
+                    <div id="minutesPickerContainer" class="picker-wheel-container" data-type="minutes">
+                        <div class="highlight-line top"></div>
+                        <div class="highlight-line bottom"></div>
+                        <ul id="minutesPickerWheel" class="picker-wheel"></ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex flex-col items-center mt-6 w-full max-w-xs">
+                <label for="breakInput" class="picker-label">Number of Breaks</label>
+                <input type="number" id="breakInput" value="0" min="0" class="w-16 rounded-md py-2 text-lg font-semibold"/>
+            </div>
+
+            <div class="controls flex justify-center items-center gap-4 mt-6">
+                <button id="pauseResumeBtn" onclick="togglePauseResume()" class="py-3 px-6 rounded-lg transition-all duration-300">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8 5V19L19 12L8 5Z" fill="currentColor"/>
+                    </svg>
+                </button>
+                <button onclick="resetTimer()" class="py-3 px-6 rounded-lg transition-all duration-300">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 6V3L8 7L12 11V8C15.31 8 18 10.69 18 14C18 17.31 15.31 20 12 20C8.69 20 6 17.31 6 14H4C4 18.42 7.58 22 12 22C16.42 22 20 18.42 20 14C20 9.58 16.42 6 12 6Z" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ITEM_HEIGHT = 50;
+    const BUFFER_ITEMS = 60;
+
+    let timeRemaining = 0, timerInterval = null, isPaused = true, isFocusSession = true;
+    let sessionsCompleted = 0, totalSessions = 1, breakDuration = 0, perSessionDuration = 0;
+    let selectedHours = 0, selectedMinutes = 0, currentMessageElement = null;
+    let initialSessionTime = 0; // Track the starting time for progress calculation
+
+    const timerDisplay = document.getElementById('timer');
+    const timerTitle = document.getElementById('timerTitle');
+    const pauseResumeBtn = document.getElementById('pauseResumeBtn');
+    const breakInput = document.getElementById('breakInput');
+    const focusDurationDisplay = document.getElementById('focusDurationDisplay');
+    const breakDurationDisplay = document.getElementById('breakDurationDisplay');
+    const progressCircle = document.getElementById('progressCircle');
+    const progressPercentage = document.getElementById('progressPercentage');
+
+    // Calculate circle circumference for progress animation
+    const radius = 150;
+    const circumference = 2 * Math.PI * radius;
+    progressCircle.style.strokeDasharray = circumference;
+    progressCircle.style.strokeDashoffset = circumference;
+
+    function updateProgressRing(current, total) {
+        if (total === 0) {
+            progressCircle.style.strokeDashoffset = circumference;
+            progressPercentage.textContent = '0%';
+            return;
+        }
+        const progress = (total - current) / total;
+        const offset = circumference * (1 - progress);
+        progressCircle.style.strokeDashoffset = offset;
+        
+        const percentage = Math.round(progress * 100);
+        progressPercentage.textContent = `${percentage}%`;
+    }
+
+    function showMessage(msg) {
+        clearMessage();
+        const box = document.createElement('div');
+        box.className = "fixed bottom-5 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50";
+        box.style.position = "fixed";
+        box.style.bottom = "20px";
+        box.style.left = "50%";
+        box.style.transform = "translateX(-50%)";
+        box.style.transition = "all 0.3s";
+        box.textContent = msg;
+        document.body.appendChild(box);
+        currentMessageElement = box;
+        setTimeout(clearMessage, 5000);
+    }
+
+    function clearMessage() {
+        if (currentMessageElement) {
+            currentMessageElement.style.opacity = '0';
+            currentMessageElement.style.transform = 'translate(-50%, 50px)';
+            setTimeout(() => {
+                if (currentMessageElement) {
+                    currentMessageElement.remove();
+                    currentMessageElement = null;
+                }
+            }, 300);
+        }
+    }
+
+    function updateDisplay(sec) {
+        const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60), s = sec % 60;
+        timerDisplay.textContent = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        updateProgressRing(sec, initialSessionTime);
+    }
+    
+    function updateDurationDisplays() {
+        const total = (selectedHours * 3600) + (selectedMinutes * 60);
+        const breaks = parseInt(breakInput.value) || 0;
+        totalSessions = breaks + 1;
+
+        if (total === 0) {
+            perSessionDuration = breakDuration = 0;
+        } else {
+            perSessionDuration = Math.floor(total / totalSessions);
+            breakDuration = Math.floor(total * 0.15);
+        }
+
+        const fh = Math.floor(perSessionDuration / 3600), fm = Math.floor((perSessionDuration % 3600) / 60), fs = perSessionDuration % 60;
+        focusDurationDisplay.textContent = `${fh}h ${fm}m ${String(fs).padStart(2, '0')}s`;
+
+        const bm = Math.floor(breakDuration / 60), bs = breakDuration % 60;
+        breakDurationDisplay.textContent = `${bm}m ${String(bs).padStart(2, '0')}s`;
+    }
+    
+    function updatePauseResumeButtonIcon(paused) {
+        pauseResumeBtn.innerHTML = paused 
+            ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 5V19L19 12L8 5Z" fill="currentColor"/></svg>`
+            : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 4H8V20H6V4ZM16 4H18V20H16V4Z" fill="currentColor"/></svg>`;
+    }
+    
+    function startCountdown() {
+        if (timerInterval) return;
+        isPaused = false;
+        updatePauseResumeButtonIcon(false);
+        timerInterval = setInterval(() => {
+            if (!isPaused && timeRemaining > 0) {
+                timeRemaining--;
+                updateDisplay(timeRemaining);
+            } else if (timeRemaining <= 0) {
+                timerEnds();
+            }
+        }, 1000);
+    }
+
+    function timerEnds() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isPaused = true;
+
+        if (isFocusSession) {
+            sessionsCompleted++;
+            if (sessionsCompleted < totalSessions) {
+                isFocusSession = false;
+                const isLongBreak = (sessionsCompleted > 0) && (sessionsCompleted % 3 === 0);
+                if (isLongBreak) {
+                    const total = (selectedHours * 3600) + (selectedMinutes * 60);
+                    timeRemaining = Math.floor(total * 0.20);
+                    initialSessionTime = timeRemaining;
+                    timerTitle.textContent = 'Long Break (20%)';
+                    clearMessage();
+                    showMessage("Time for a longer 20% break! 🏖️");
+                } else {
+                    timeRemaining = breakDuration;
+                    initialSessionTime = timeRemaining;
+                    timerTitle.textContent = 'Break (15%)';
+                    clearMessage();
+                    showMessage("Regular break time!");
+                }
+                updateDisplay(timeRemaining);
+                if (timeRemaining > 0) {
+                    startCountdown();
+                } else {
+                    isFocusSession = true;
+                    timeRemaining = perSessionDuration;
+                    initialSessionTime = timeRemaining;
+                    timerTitle.textContent = 'Focus';
+                    clearMessage();
+                    showMessage("Back to focus!");
+                    updateDisplay(timeRemaining);
+                    startCountdown();
+                }
+            } else {
+                timerTitle.textContent = 'Complete!';
+                updateDisplay(0);
+                updatePauseResumeButtonIcon(true);
+                showMessage("Session complete! 🎉");
+            }
+        } else {
+            isFocusSession = true;
+            timeRemaining = perSessionDuration;
+            initialSessionTime = timeRemaining;
+            timerTitle.textContent = 'Focus';
+            clearMessage();
+            showMessage("Back to focus!");
+            updateDisplay(timeRemaining);
+            startCountdown();
+        }
+        updateDurationDisplays();
+    }
+
+    function togglePauseResume() {
+        const total = (selectedHours * 3600) + (selectedMinutes * 60);
+        if (!timerInterval && total > 0) {
+            updateDurationDisplays();
+            timeRemaining = perSessionDuration;
+            initialSessionTime = timeRemaining;
+            clearMessage();
+            isFocusSession = true;
+            sessionsCompleted = 0;
+            timerTitle.textContent = 'Focus';
+            updateDisplay(timeRemaining);
+            startCountdown();
+            return;
+        } else if (total === 0) {
+            clearMessage();
+            showMessage("Please select time > 0");
+            return;
+        }
+        if (timerInterval) {
+            isPaused = !isPaused;
+            updatePauseResumeButtonIcon(isPaused);
+            if (isPaused) {
+                clearMessage();
+                showMessage("Paused");
+            } else {
+                clearMessage();
+            }
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isPaused = true;
+        isFocusSession = true;
+        sessionsCompleted = 0;
+        updateDurationDisplays(); 
+        timeRemaining = perSessionDuration;
+        initialSessionTime = timeRemaining;
+        updateDisplay(timeRemaining);
+        updatePickerPosition('hours', selectedHours);
+        updatePickerPosition('minutes', selectedMinutes);
+        updatePauseResumeButtonIcon(true);
+        timerTitle.textContent = 'Focus';
+        clearMessage();
+    }
+    
+    breakInput.addEventListener('input', updateDurationDisplays);
+
+    const pickerSettings = {
+        'hours': { listElement: document.getElementById('hoursPickerWheel'), containerElement: document.getElementById('hoursPickerContainer'), length: 60, selected: 0, initial: 0, scrollIndex: 0, offset: 0, targetOffset: 0, animationFrameId: null, isDragging: false, startY: 0 },
+        'minutes': { listElement: document.getElementById('minutesPickerWheel'), containerElement: document.getElementById('minutesPickerContainer'), length: 60, selected: 0, initial: 25, scrollIndex: 0, offset: 0, targetOffset: 0, animationFrameId: null, isDragging: false, startY: 0 }
+    };
+
+    function createPickerItems(type) {
+        const p = pickerSettings[type];
+        p.listElement.innerHTML = '';
+        const items = Array.from({ length: p.length }, (_, i) => String(i).padStart(2, '0'));
+        const total = p.length + BUFFER_ITEMS * 2;
+        for (let i = 0; i < total; i++) {
+            const idx = (i - BUFFER_ITEMS + p.length * 2) % p.length;
+            const li = document.createElement('li');
+            li.textContent = items[idx];
+            p.listElement.appendChild(li);
+        }
+        p.selected = p.initial;
+        p.scrollIndex = p.initial + BUFFER_ITEMS;
+        updatePickerPosition(type, p.selected, false);
+    }
+
+    function updateItemStyles(type) {
+        const p = pickerSettings[type];
+        const items = Array.from(p.listElement.children);
+        const centerOffset = p.containerElement.clientHeight / 2 - ITEM_HEIGHT / 2;
+        const scroll = -p.offset;
+        items.forEach((item, i) => {
+            const center = i * ITEM_HEIGHT + ITEM_HEIGHT / 2;
+            const dist = Math.abs(center - scroll - centerOffset - ITEM_HEIGHT/2);
+            const opacity = 1 - (dist / (p.containerElement.clientHeight * 0.75));
+            item.style.opacity = Math.max(0.3, opacity);
+            item.classList.toggle('selected', dist < ITEM_HEIGHT / 2);
+        });
+    }
+
+    function getSelectedValue(type) {
+        const p = pickerSettings[type];
+        const val = (p.scrollIndex - BUFFER_ITEMS) % p.length;
+        return val < 0 ? val + p.length : val;
+    }
+
+    function updateTimeFromPickers() {
+        selectedHours = getSelectedValue('hours');
+        selectedMinutes = getSelectedValue('minutes');
+        if (isPaused && !timerInterval) {
+            updateDurationDisplays();
+            timeRemaining = perSessionDuration;
+            initialSessionTime = timeRemaining;
+            updateDisplay(timeRemaining);
+        } else {
+            updateDurationDisplays();
+        }
+    }
+
+    function updatePickerPosition(type, value, animate = true) {
+        const p = pickerSettings[type];
+        const newIdx = value + BUFFER_ITEMS;
+        if (newIdx < BUFFER_ITEMS || newIdx >= p.length + BUFFER_ITEMS) {
+            const idx = (newIdx - BUFFER_ITEMS + p.length) % p.length;
+            p.scrollIndex = idx + BUFFER_ITEMS;
+            p.offset = -(p.scrollIndex * ITEM_HEIGHT) + p.containerElement.clientHeight / 2 - ITEM_HEIGHT / 2;
+            p.listElement.style.transform = `translateY(${p.offset}px)`;
+            updateItemStyles(type);
+            updateTimeFromPickers();
+        } else {
+            p.scrollIndex = newIdx;
+        }
+        p.targetOffset = -(p.scrollIndex * ITEM_HEIGHT) + p.containerElement.clientHeight / 2 - ITEM_HEIGHT / 2;
+        if (animate) {
+            animateScroll(type);
+        } else {
+            p.offset = p.targetOffset;
+            p.listElement.style.transform = `translateY(${p.offset}px)`;
+            updateItemStyles(type);
+            updateTimeFromPickers();
+        }
+    }
+    
+    function animateScroll(type) {
+        const p = pickerSettings[type];
+        if (p.animationFrameId) cancelAnimationFrame(p.animationFrameId);
+        const lerp = (a, b, t) => a * (1 - t) + b * t;
+        const animate = () => {
+            p.offset = lerp(p.offset, p.targetOffset, 0.2);
+            p.listElement.style.transform = `translateY(${p.offset}px)`;
+            updateItemStyles(type);
+            updateTimeFromPickers();
+            if (Math.abs(p.offset - p.targetOffset) > 0.5) {
+                p.animationFrameId = requestAnimationFrame(animate);
+            } else {
+                p.offset = p.targetOffset;
+                p.listElement.style.transform = `translateY(${p.offset}px)`;
+                updateItemStyles(type);
+                updateTimeFromPickers();
+            }
+        };
+        p.animationFrameId = requestAnimationFrame(animate);
+    }
+    
+    function handleWheel(e) {
+        if (timerInterval && !isPaused) return; 
+        const type = e.currentTarget.dataset.type;
+        const p = pickerSettings[type];
+        e.preventDefault();
+        p.scrollIndex += Math.sign(e.deltaY);
+        updatePickerPosition(type, (p.scrollIndex - BUFFER_ITEMS));
+    }
+
+    function handleDragStart(e) {
+        if (timerInterval && !isPaused) return;
+        const type = e.currentTarget.dataset.type;
+        const p = pickerSettings[type];
+        p.isDragging = true;
+        p.startY = e.clientY || e.touches[0].clientY;
+        e.preventDefault();
+        cancelAnimationFrame(p.animationFrameId);
+    }
+
+    function handleDragMove(e) {
+        const type = e.currentTarget.dataset.type;
+        const p = pickerSettings[type];
+        if (!p.isDragging) return;
+        const newY = e.clientY || e.touches[0].clientY;
+        const deltaY = newY - p.startY;
+        p.offset += deltaY;
+        p.listElement.style.transform = `translateY(${p.offset}px)`;
+        updateItemStyles(type);
+        p.startY = newY;
+        p.targetOffset = p.offset;
+    }
+
+    function handleDragEnd(e) {
+        const type = e.currentTarget.dataset.type;
+        const p = pickerSettings[type];
+        if (!p.isDragging) return;
+        p.isDragging = false;
+        const nearestIdx = Math.round(-p.offset / ITEM_HEIGHT);
+        p.scrollIndex = nearestIdx;
+        updatePickerPosition(type, (p.scrollIndex - BUFFER_ITEMS));
+    }
+
+    function initPicker(type) {
+        const p = pickerSettings[type];
+        createPickerItems(type);
+        p.containerElement.addEventListener('mousedown', handleDragStart);
+        p.containerElement.addEventListener('mousemove', handleDragMove);
+        p.containerElement.addEventListener('mouseup', handleDragEnd);
+        p.containerElement.addEventListener('mouseleave', handleDragEnd);
+        p.containerElement.addEventListener('wheel', handleWheel, { passive: false });
+        p.containerElement.addEventListener('touchstart', handleDragStart, { passive: false });
+        p.containerElement.addEventListener('touchmove', handleDragMove, { passive: false });
+        p.containerElement.addEventListener('touchend', handleDragEnd);
+    }
+
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        document.querySelector('.openbtn').style.left = "260px";
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("main").style.marginLeft = "0";
+        document.querySelector('.openbtn').style.left = "10px";
+    }
+
+    // Dark/light mode persistence
+    const body = document.body;
+    const darkModeClass = 'dark-mode';
+    const savedMode = localStorage.getItem('darkMode');
+    if (savedMode === 'enabled') {
+        body.classList.add(darkModeClass);
+    } else {
+        body.classList.remove(darkModeClass);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        initPicker('hours');
+        initPicker('minutes');
+        selectedHours = 0;
+        selectedMinutes = 25;
+        pickerSettings['hours'].scrollIndex = BUFFER_ITEMS;
+        pickerSettings['minutes'].scrollIndex = 25 + BUFFER_ITEMS;
+        updatePickerPosition('hours', selectedHours, false);
+        updatePickerPosition('minutes', selectedMinutes, false);
+        updateDurationDisplays();
+        updatePauseResumeButtonIcon(true);
+        initialSessionTime = perSessionDuration;
+        updateDisplay(0);
+    });
+</script>
+
+</body>
+</html>

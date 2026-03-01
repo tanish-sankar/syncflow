@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(45, 44, 44);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) {
+            background-color: #f0f0f0;
+            color: #333333;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #000000;
+            overflow-x: hidden;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        body:not(.dark-mode) .sidebar {
+            background-color: #e0e0e0;
+        }
+
+        .sidebar .links {
+            padding-top: 60px;
+            flex-grow: 1;
+        }
+
+        .sidebar a {
+            padding: 12px 24px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        body:not(.dark-mode) .sidebar a {
+            color: #333;
+        }
+
+        .sidebar a:hover {
+            background-color: rgb(220, 84, 84);
+            color: #ffffff;
+        }
+
+        .logout-container {
+            padding: 20px;
+            border-top: 1px solid #444;
+            transition: border-top-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .logout-container {
+            border-top: 1px solid #ccc;
+        }
+
+        .logout-btn {
+            background-color: #000000;
+            color: rgb(220, 84, 84);
+            font-weight: bold;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .logout-btn {
+            background-color: #ffffff;
+            color: rgb(220, 84, 84);
+        }
+
+        body:not(.dark-mode) .logout-btn:hover {
+             background-color: rgb(220, 84, 84);
+             color: #ffffff;
+        }
+
+        body.dark-mode .logout-btn:hover {
+            background-color: rgb(220, 84, 84);
+            color: #000000;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 70px;
+            box-sizing: border-box;
+        }
+
+        .openbtn {
+            font-size: 30px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: rgb(255, 255, 255);
+            padding: 10px 15px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+            transition: left 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .openbtn {
+            color: #000000;
+        }
+
+        .app-title {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            height: 60px;
+            padding: 5px 10px;
+            transition: right 0.3s ease;
+        }
+
+        .app-title img {
+            display: block;
+            max-height: 100%;
+            width: auto;
+            border-radius: 8px;
+            border: 2px solid #ffffff;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .app-title img {
+            border-color: #cccccc;
+        }
+
+        h2 {
+            color: #ffffff;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: color 0.3s ease;
+        }
+
+        body:not(.dark-mode) h2 {
+            color: #333333;
+            text-shadow: none;
+        }
+
+        .settings-section {
+            background-color: #000000;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            width: 90%;
+            max-width: 800px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body:not(.dark-mode) .settings-section {
+            background-color: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .settings-section h3 {
+            color: #ffffff;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+            transition: color 0.3s ease, border-bottom-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .settings-section h3 {
+            color: #333333;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #222;
+            transition: border-bottom-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .setting-item {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-item label {
+            font-size: 1em;
+            color: #ffffff;
+            transition: color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .setting-item label {
+            color: #333333;
+        }
+
+        .setting-item input[type="text"],
+        .setting-item input[type="email"],
+        .setting-item select {
+            padding: 8px;
+            border-radius: 5px;
+            border: none;
+            font-size: 0.9em;
+            background-color: #333;
+            color: #ffffff;
+             transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .setting-item input[type="text"],
+         body:not(.dark-mode) .setting-item input[type="email"],
+         body:not(.dark-mode) .setting-item select {
+            background-color: #e0e0e0;
+            color: #333333;
+         }
+
+         .setting-item input[type="checkbox"] {
+             margin-left: 10px;
+         }
+
+        .toggle-container {
+            width: 60px;
+            height: 34px;
+            position: relative;
+            cursor: pointer;
+            background-color: rgb(45, 44, 44);;
+            transition: background-color 0.4s;
+            border-radius: 34px;
+        }
+
+        .toggle-circle {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: rgb(255, 255, 255);
+            transition: transform 0.4s, background-color 0.4s;
+            border-radius: 50%;
+        }
+
+        .toggle-container.dark-mode .toggle-circle {
+            transform: translateX(26px);
+            background-color: rgb(0, 0, 0);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+            h2 {
+                font-size: 1.8em;
+            }
+
+             .app-title {
+                 font-size: 1.4em;
+                 top: 15px;
+                 right: 15px;
+                 height: 40px;
+                  padding: 3px 8px;
+             }
+             .app-title img {
+                 max-height: 40px;
+             }
+
+            .settings-section {
+                padding: 15px;
+            }
+
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .setting-item label {
+                font-size: 0.9em;
+            }
+
+            .setting-item input[type="text"],
+            .setting-item input[type="email"],
+            .setting-item select {
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div id="mySidebar" class="sidebar">
+    <div class="links">
+        <a href="javascript:void(0)" onclick="closeNav()">✕ Close</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('focus') }}">Focus</a>
+        <a href="{{ url_for('stats') }}">Stats</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+    </div>
+
+    <div class="logout-container">
+        <a class="logout-btn" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</div>
+
+<button class="openbtn" onclick="openNav()">☰</button>
+
+<div class="app-title">
+    <img src="/static/Screenshot 2025-05-11 at 9.04.47 PM.png" alt="SyncFlow Logo">
+    </div>
+
+
+<div id="main" class="main-content">
+    <h2>Settings</h2>
+
+    <div class="settings-section">
+        <h3>General Settings</h3>
+        <div class="setting-item">
+            <label for="username">Username:</label>
+            <input type="text" id="username" value="Current User">
+        </div>
+        <div class="setting-item">
+            <label for="email">Email:</label>
+            <input type="email" id="email" value="user@example.com">
+        </div>
+
+        <div class="setting-item">
+            <label>Theme:</label>
+            <div id="modeToggle" class="toggle-container">
+                <div class="toggle-circle"></div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+         document.querySelector('.openbtn').style.left = "260px";
+         const appTitle = document.querySelector('.app-title');
+         if (appTitle) {
+              appTitle.style.right = "calc(20px - 250px + 250px)";
+              appTitle.style.transition = 'right 0.3s ease';
+         }
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("main").style.marginLeft = "0";
+         document.querySelector('.openbtn').style.left = "10px";
+         const appTitle = document.querySelector('.app-title');
+          if (appTitle) {
+             appTitle.style.right = "20px";
+             appTitle.style.transition = 'right 0.3s ease';
+          }
+    }
+
+    const modeToggle = document.getElementById('modeToggle');
+    const body = document.body;
+
+    const darkModeClass = 'dark-mode';
+
+    const savedMode = localStorage.getItem('darkMode');
+
+    if (savedMode === 'disabled') {
+        body.classList.remove(darkModeClass);
+        modeToggle.classList.remove(darkModeClass);
+    } else {
+         body.classList.add(darkModeClass);
+         modeToggle.classList.add(darkModeClass);
+    }
+
+    modeToggle.addEventListener('click', () => {
+        body.classList.toggle(darkModeClass);
+        modeToggle.classList.toggle(darkModeClass);
+
+        if (body.classList.contains(darkModeClass)) {
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            localStorage.setItem('darkMode', 'disabled');
+        }
+    });
+</script>
+
+</body>
+</html>

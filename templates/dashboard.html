@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(45, 44, 44);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) {
+            background-color: #f0f0f0;
+            color: #333333;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #000000;
+            overflow-x: hidden;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        body:not(.dark-mode) .sidebar {
+            background-color: #e0e0e0;
+        }
+
+        .sidebar .links {
+            padding-top: 60px;
+            flex-grow: 1;
+        }
+
+        .sidebar a {
+            padding: 12px 24px;
+            text-decoration: none;
+            font-size: 18px;
+            color: #fff;
+            display: block;
+            transition: 0.3s;
+        }
+
+        body:not(.dark-mode) .sidebar a {
+            color: #333;
+        }
+
+        .sidebar a:hover {
+            background-color: rgb(220, 84, 84);
+            color: #ffffff;
+        }
+
+        .logout-container {
+            padding: 20px;
+            border-top: 1px solid #444;
+            transition: border-top-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .logout-container {
+            border-top: 1px solid #ccc;
+        }
+
+        .logout-btn {
+            background-color: #000000;
+            color: rgb(220, 84, 84);
+            font-weight: bold;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .logout-btn {
+            background-color: #ffffff;
+            color: rgb(220, 84, 84);
+        }
+
+        body:not(.dark-mode) .logout-btn:hover {
+             background-color: rgb(220, 84, 84);
+             color: #ffffff;
+        }
+
+        body.dark-mode .logout-btn:hover {
+            background-color: rgb(220, 84, 84);
+            color: #000000;
+        }
+
+        .main-content {
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .openbtn {
+            font-size: 30px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            color: rgb(255, 255, 255);
+            padding: 10px 15px;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+            transition: left 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .openbtn {
+            color: #000000;
+        }
+
+        .app-title {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            height: 60px;
+            padding: 5px 10px;
+            transition: right 0.3s ease;
+        }
+
+        .app-title img {
+            display: block;
+            max-height: 100%;
+            width: auto;
+            border-radius: 8px;
+            border: 2px solid #ffffff;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .app-title img {
+            border-color: #cccccc;
+        }
+
+        h2 {
+            color: #ffffff;
+            margin-bottom: 30px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        body:not(.dark-mode) h2 {
+            color: rgb(45, 44, 44);
+            text-shadow: none;
+        }
+
+        .task-input {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 15px;
+            width: 90%;
+            max-width: 800px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .task-input input,
+        .task-input select {
+            padding: 15px;
+            border-radius: 8px;
+            border: none;
+            font-size: 1em;
+            background-color: #000000;
+            color: #ffffff;
+            flex-grow: 1;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23ffffff%22%20d%3D%22M287%2C114.7L159.3%2C242.5c-5.8%2C5.8-15.2%2C5.8-21%2C0L5.4%2C114.7c-5.8-5.8-5.8-15.2%2C0-21l19.8-19.8c5.8-5.8%2C15.2-5.8%2C21%2C0l93%2C93.1l93-93.1c5.8-5.8%2C15.2-5.8%2C21%2C0l19.8%2C19.8C292.8%2C99.5%2C292.8%2C108.9%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
+            padding-right: 30px;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .task-input input,
+        body:not(.dark-mode) .task-input select {
+            background-color: #ffffff;
+            color: #333333;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23333333%22%20d%3D%22M287%2C114.7L159.3%2C242.5c-5.8%2C5.8-15.2%2C5.8-21%2C0L5.4%2C114.7c-5.8-5.8-5.8-15.2%2C0-21l19.8-19.8c5.8-5.8%2C15.2-5.8%2C21%2C0l93%2C93.1l93-93.1c5.8-5.8%2C15.2-5.8%2C21%2C0l19.8%2C19.8C292.8%2C99.5%2C292.8%2C108.9%2C287%2C114.7z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: right 10px top 50%;
+            background-size: 12px auto;
+            padding-right: 30px;
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .task-input input::placeholder {
+            color: #ccc;
+        }
+
+        body:not(.dark-mode) .task-input input::placeholder {
+            color: #666;
+        }
+
+        .task-input select option {
+             background-color: #000000;
+             color: #ffffff;
+        }
+
+         body:not(.dark-mode) .task-input select option {
+             background-color: #ffffff;
+             color: #333333;
+        }
+
+        .task-input button {
+            background-color: #e0e0e0;
+            color: #333;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            flex-grow: 0;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body.dark-mode .task-input button {
+             background-color: #ffffff;
+             color: #333;
+        }
+
+        body:not(.dark-mode) .task-input button:hover {
+             background-color: rgb(220, 84, 84);
+             color: #ffffff;
+        }
+
+        body.dark-mode .task-input button:hover {
+             background-color: rgb(220, 84, 84);
+             color: #ffffff;
+        }
+
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 95%;
+            max-width: 1100px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .kanban-column {
+            background-color: #333;
+            border-radius: 12px;
+            padding: 15px;
+            min-width: 250px;
+            flex: 1;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body:not(.dark-mode) .kanban-column {
+            background-color: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .kanban-column h3 {
+            background-color: #ffffff;
+            color: rgb(45, 44, 44);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+         body:not(.dark-mode) .kanban-column h3 {
+            background-color: #333333;
+            color: #ffffff;
+             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .kanban-card {
+            background-color: #555;
+            margin: 10px 0;
+            padding: 18px;
+            border-radius: 8px;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease, transform 0.1s ease, color 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        body:not(.dark-mode) .kanban-card {
+            background-color: #e0e0e0;
+            color: #333333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+         .kanban-card .task-date {
+             font-size: 0.9em;
+             color: #ccc;
+             margin-left: 10px;
+             transition: color 0.3s ease;
+         }
+
+        body:not(.dark-mode) .kanban-card .task-date {
+             color: #666;
+        }
+
+        .kanban-card input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .calendar-section {
+            width: 100%;
+            max-width: 1000px;
+            margin-top: 40px;
+            background-color: #000000;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body:not(.dark-mode) .calendar-section {
+            background-color: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .calendar-header {
+             display: flex;
+             justify-content: space-between;
+             align-items: center;
+             margin-bottom: 20px;
+             color: #ffffff;
+             transition: color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .calendar-header {
+             color: #333333;
+        }
+
+        .calendar-nav button {
+            background-color: #000000;
+            color: #ffffff;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .calendar-nav button {
+            background-color: #e0e0e0;
+            color: #333333;
+        }
+
+        .calendar-nav button:hover {
+            background-color: #ffffff;
+            color: #000000;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .day-header {
+            font-weight: bold;
+            text-align: center;
+            padding: 10px 0;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .day-header {
+            color: #666;
+        }
+
+        .day-cell {
+            background-color: #555;
+            border-radius: 5px;
+            min-height: 100px;
+            padding: 10px;
+            padding-top: 25px;
+            font-size: 0.9em;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        body:not(.dark-mode) .day-cell {
+            background-color: #f9f9f9;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+        }
+
+        .day-cell .day-number {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            font-size: 0.8em;
+            color: #ccc;
+            z-index: 1;
+            transition: color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .day-cell .day-number {
+            color: #666;
+        }
+
+        .day-cell.empty {
+             background-color: #444;
+             visibility: hidden;
+             transition: background-color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .day-cell.empty {
+             background-color: #e0e0e0;
+        }
+
+         .day-cell.today {
+             border: 2px solid #ff5252;
+             background-color: #666;
+             transition: background-color 0.3s ease;
+         }
+
+         body:not(.dark-mode) .day-cell.today {
+             background-color: #cccccc;
+         }
+
+        .day-cell .task-in-calendar {
+            background-color: #ffffff;
+            color: #000000;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        body:not(.dark-mode) .day-cell .task-in-calendar {
+            background-color: #333333;
+            color: #ffffff;
+        }
+
+        .day-cell .task-in-calendar:hover {
+            background-color: rgb(220, 84, 84);
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+             .app-title {
+                 font-size: 1.4em;
+                 top: 15px;
+                 right: 15px;
+                 height: 40px;
+                  padding: 3px 8px;
+             }
+             .app-title img {
+                 max-height: 40px;
+             }
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .task-input {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .task-input input, .task-input select, .task-input button {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .kanban-board {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+
+            .kanban-column {
+                min-width: unset;
+                width: 95%;
+                max-width: 400px;
+            }
+
+             .calendar-grid {
+                 grid-template-columns: repeat(auto-fit, minmax(40px, 1fr));
+                 gap: 3px;
+             }
+             .day-cell {
+                 min-height: 80px;
+                 padding: 5px;
+                 padding-top: 20px;
+             }
+              .day-cell .day-number {
+                 font-size: 0.7em;
+                 top: 2px;
+                 right: 2px;
+             }
+              .day-cell .task-in-calendar {
+                 padding: 2px 5px;
+                 font-size: 0.8em;
+             }
+        }
+    </style>
+</head>
+<body>
+
+<div id="mySidebar" class="sidebar">
+    <div class="links">
+        <a href="javascript:void(0)" onclick="closeNav()">✕ Close</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('focus') }}">Focus</a>
+        <a href="{{ url_for('stats') }}">Stats</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+    </div>
+
+    <div class="logout-container">
+        <a class="logout-btn" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</div>
+
+<button class="openbtn" onclick="openNav()">☰</button>
+
+<div class="app-title">
+    <img src="/static/Screenshot 2025-05-11 at 9.04.47 PM.png" alt="SyncFlow Logo">
+</div>
+
+<div id="main" class="main-content">
+    <h2>Welcome Back!</h2>
+
+    <div class="task-input">
+        <input type="text" id="taskName" placeholder="Task Name">
+        <select id="taskPriority">
+            <option value="High priority">High Priority</option>
+            <option value="Medium priority">Medium Priority</option>
+            <option value="Low priority">Low Priority</option>
+        </select>
+        <input type="date" id="completionDate">
+        <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <div class="kanban-board">
+        <div class="kanban-column" id="todoColumn">
+            <h3>To Do</h3>
+        </div>
+        <div class="kanban-column" id="completedColumn">
+            <h3>Completed</h3>
+        </div>
+    </div>
+
+    <div class="calendar-section">
+        <div class="calendar-header">
+            <button id="prevMonth">&lt;</button>
+            <h3 id="currentMonthYear">Month Year</h3>
+            <button id="nextMonth">&gt;</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid">
+            <div class="day-header">Sun</div>
+            <div class="day-header">Mon</div>
+            <div class="day-header">Tue</div>
+            <div class="day-header">Wed</div>
+            <div class="day-header">Thu</div>
+            <div class="day-header">Fri</div>
+            <div class="day-header">Sat</div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function openNav() {
+        document.getElementById("mySidebar").style.width = "250px";
+        document.getElementById("main").style.marginLeft = "250px";
+        document.querySelector('.openbtn').style.left = "260px";
+        const appTitle = document.querySelector('.app-title');
+        if (appTitle) {
+            appTitle.style.right = "calc(20px - 250px + 250px)";
+            appTitle.style.transition = 'right 0.3s ease';
+        }
+    }
+
+    function closeNav() {
+        document.getElementById("mySidebar").style.width = "0";
+        document.getElementById("main").style.marginLeft = "0";
+        document.querySelector('.openbtn').style.left = "10px";
+        const appTitle = document.querySelector('.app-title');
+        if (appTitle) {
+            appTitle.style.right = "20px";
+            appTitle.style.transition = 'right 0.3s ease';
+        }
+    }
+
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"];
+
+    let tasks = [];
+
+    const calendarGrid = document.getElementById('calendarGrid');
+    const currentMonthYearDisplay = document.getElementById('currentMonthYear');
+    const todoColumn = document.getElementById("todoColumn");
+    const completedColumn = document.getElementById("completedColumn");
+
+    function generateUniqueId() {
+        return Date.now() + Math.random().toString(16).slice(2);
+    }
+
+    function renderCalendar(year, month) {
+        calendarGrid.innerHTML = `
+            <div class="day-header">Sun</div>
+            <div class="day-header">Mon</div>
+            <div class="day-header">Tue</div>
+            <div class="day-header">Wed</div>
+            <div class="day-header">Thu</div>
+            <div class="day-header">Fri</div>
+            <div class="day-header">Sat</div>
+        `;
+
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const numDays = lastDay.getDate();
+        const startDayOfWeek = firstDay.getDay();
+
+        currentMonthYearDisplay.textContent = `${monthNames[month]} ${year}`;
+
+        for (let i = 0; i < startDayOfWeek; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.classList.add('day-cell', 'empty');
+            calendarGrid.appendChild(emptyCell);
+        }
+
+        for (let day = 1; day <= numDays; day++) {
+            const dayCell = document.createElement('div');
+            dayCell.classList.add('day-cell');
+            dayCell.innerHTML = `<span class="day-number">${day}</span>`;
+
+            const currentDate = new Date(year, month, day);
+            const today = new Date();
+
+            if (currentDate.getDate() === today.getDate() &&
+                currentDate.getMonth() === today.getMonth() &&
+                currentDate.getFullYear() === today.getFullYear()) {
+                dayCell.classList.add('today');
+            }
+
+            tasks.forEach(task => {
+                if (task.completionDate) {
+                    const taskDate = new Date(task.completionDate + 'T00:00:00');
+
+                     if (!isNaN(taskDate) &&
+                        taskDate.getDate() === day &&
+                        taskDate.getMonth() === month &&
+                        taskDate.getFullYear() === year) {
+
+                         const taskElement = document.createElement('div');
+                         taskElement.classList.add('task-in-calendar');
+                         taskElement.textContent = task.name;
+                         dayCell.appendChild(taskElement);
+                     }
+                }
+            });
+
+            calendarGrid.appendChild(dayCell);
+        }
+    }
+
+    function addTask() {
+        const taskNameInput = document.getElementById("taskName");
+        const taskPriorityInput = document.getElementById("taskPriority");
+        const completionDateInput = document.getElementById("completionDate");
+
+        const taskName = taskNameInput.value.trim();
+        const taskPriority = taskPriorityInput.value;
+        const completionDate = completionDateInput.value;
+        const taskId = generateUniqueId();
+
+        if (!taskName) {
+            alert("Task name cannot be empty!");
+            return;
+        }
+         if (!completionDate) {
+             alert("Completion date is required for the calendar!");
+             return;
+         }
+
+        const taskCard = document.createElement("div");
+        taskCard.className = "kanban-card";
+        taskCard.dataset.taskId = taskId;
+
+        taskCard.innerHTML = `
+            <input type="checkbox" class="task-complete-checkbox">
+            <span>${taskName} (${taskPriority})</span>
+            <span class="task-date">${completionDate}</span>
+        `;
+
+        const checkbox = taskCard.querySelector('.task-complete-checkbox');
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                const completedTaskId = this.closest('.kanban-card').dataset.taskId;
+                completedColumn.appendChild(this.closest('.kanban-card'));
+
+                tasks = tasks.filter(task => task.id !== completedTaskId);
+
+                renderCalendar(currentYear, currentMonth);
+
+                this.disabled = true;
+            }
+        });
+
+        todoColumn.appendChild(taskCard);
+
+        tasks.push({
+            id: taskId,
+            name: taskName,
+            priority: taskPriority,
+            completionDate: completionDate
+        });
+
+        renderCalendar(currentYear, currentMonth);
+
+        taskNameInput.value = "";
+        taskPriorityInput.value = "High priority";
+        completionDateInput.value = "";
+    }
+
+    document.getElementById('prevMonth').addEventListener('click', () => {
+        currentYear = (currentMonth === 0) ? currentYear - 1 : currentYear;
+        currentMonth = (currentMonth === 0) ? 11 : currentMonth - 1;
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    document.getElementById('nextMonth').addEventListener('click', () => {
+        currentYear = (currentMonth === 11) ? currentYear + 1 : currentYear;
+        currentMonth = (currentMonth === 11) ? 0 : currentMonth + 1;
+        renderCalendar(currentYear, currentMonth);
+    });
+
+    const body = document.body;
+    const darkModeClass = 'dark-mode';
+
+    const savedMode = localStorage.getItem('darkMode');
+    if (savedMode === 'enabled') {
+        body.classList.add(darkModeClass);
+    } else {
+         body.classList.remove(darkModeClass);
+    }
+
+    renderCalendar(currentYear, currentMonth);
+</script>
+
+</body>
+</html>

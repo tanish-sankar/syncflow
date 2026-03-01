@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Your report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: rgb(45, 44, 44);
+            color: #ffffff;
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        body:not(.dark-mode) { background-color: #f0f0f0; color: #333333; }
+        .sidebar { height:100vh;width:0;position:fixed;top:0;left:0;background-color:#000;overflow-x:hidden;transition:0.3s;display:flex;flex-direction:column;justify-content:space-between;z-index:100; }
+        body:not(.dark-mode) .sidebar { background-color:#e0e0e0; }
+        .sidebar .links { padding-top:60px;flex-grow:1; }
+        .sidebar a { padding:12px 24px;text-decoration:none;font-size:18px;color:#fff;display:block;transition:0.3s; }
+        body:not(.dark-mode) .sidebar a { color:#333; }
+        .sidebar a:hover { background-color:rgb(220,84,84);color:#fff; }
+        .logout-container { padding:20px;border-top:1px solid #444; }
+        .logout-btn { background-color:#000;color:rgb(220,84,84);font-weight:bold;padding:10px 20px;border-radius:5px;display:block;text-align:center; }
+        body:not(.dark-mode) .logout-btn { background-color:#fff;color:rgb(220,84,84); }
+        .main-content { margin-left:0;transition:margin-left 0.3s ease;padding:20px;display:flex;flex-direction:column;align-items:center;padding-top:70px; }
+        .openbtn { font-size:30px;cursor:pointer;background:transparent;border:none;color:#fff;padding:10px 15px;position:fixed;top:10px;left:10px; }
+        body:not(.dark-mode) .openbtn { color:#000; }
+        h2 { color:#fff;margin-bottom:30px;text-shadow:1px 1px 2px rgba(0,0,0,0.5); }
+        body:not(.dark-mode) h2 { color:#333;text-shadow:none; }
+        .stats-section { background:#000;border-radius:12px;padding:20px;box-shadow:0 5px 15px rgba(0,0,0,0.4);width:90%;max-width:800px;margin-top:20px; }
+        body:not(.dark-mode) .stats-section { background:#fff;box-shadow:0 5px 15px rgba(0,0,0,0.2); }
+        .stats-section h3 { color:#fff;margin-bottom:15px;border-bottom:1px solid #333;padding-bottom:10px; }
+        body:not(.dark-mode) .stats-section h3 { color:#333;border-bottom:1px solid #ccc; }
+        .grade-input-form { display:flex;flex-wrap:wrap;gap:15px;margin-bottom:30px;justify-content:center; }
+        .grade-input-form input { padding:10px;border-radius:5px;border:none;font-size:1em;background:#333;color:#fff;max-width:200px; }
+        body:not(.dark-mode) .grade-input-form input { background:#e0e0e0;color:#333; }
+        .grade-input-form button { padding:10px 20px;font-size:1em;border-radius:5px;border:none;cursor:pointer;background:rgb(220,84,84);color:#fff;font-weight:bold; }
+        .grade-input-form button:hover { background:rgb(180,50,50); }
+        .grades-list { margin-top:20px; }
+        .grade-item { background:#555;padding:10px 15px;border-radius:8px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center; }
+        body:not(.dark-mode) .grade-item { background:#e0e0e0; }
+        .grade-item span { color:#fff; }
+        body:not(.dark-mode) .grade-item span { color:#333; }
+        .delete-btn { background:rgb(220,84,84);color:#fff;border:none;border-radius:4px;padding:5px 10px;cursor:pointer;font-size:0.8em;margin-left:10px; }
+        .delete-btn:hover { background:rgb(180,50,50); }
+        .average-display { margin-top:30px;font-size:1.5em;font-weight:bold;text-align:center; }
+        .chart-icon { cursor:pointer;margin-top:20px;font-size:2em;text-align:center; }
+        .charts-container { display:none;margin-top:20px; }
+        canvas { margin-top:20px;max-width:100%; }
+    </style>
+</head>
+<body>
+    
+<div id="mySidebar" class="sidebar">
+    <div class="links">
+        <a href="javascript:void(0)" onclick="closeNav()">✕ Close</a>
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('focus') }}">Focus</a>
+        <a href="{{ url_for('stats') }}">Stats</a>
+        <a href="{{ url_for('settings') }}">Settings</a>
+    </div>
+    <div class="logout-container">
+        <a class="logout-btn" href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</div>
+
+
+<button class="openbtn" onclick="openNav()">☰</button>
+
+<div id="main" class="main-content">
+    <h2>Academic Performance Stats</h2>
+
+    <div class="stats-section">
+        <h3>Add New Grade</h3>
+        <div class="grade-input-form">
+            <input type="text" id="examName" placeholder="Examination Name">
+            <input type="text" id="courseName" placeholder="Subject Name">
+            <input type="number" id="score" placeholder="Your Score" min="0">
+            <input type="number" id="totalScore" placeholder="Total Score" min="1">
+            <button onclick="addGrade()">Add Grade</button>
+        </div>
+
+        <h3>Your Grades</h3>
+        <div class="grades-list" id="gradesList"></div>
+
+        <div class="average-display">
+            Overall Average: <span id="averageScore">N/A</span>
+        </div>
+
+        <div class="chart-icon" onclick="toggleCharts()">📊</div>
+
+        <div class="charts-container" id="chartsContainer">
+            <h3>Examination-wise Bar Charts</h3>
+            <div id="examCharts"></div>
+            <h3>Overall Progress</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+let grades = JSON.parse(localStorage.getItem("grades")) || []; 
+const gradesList = document.getElementById('gradesList');
+const averageScoreSpan = document.getElementById('averageScore');
+const chartsContainer = document.getElementById('chartsContainer');
+const examChartsDiv = document.getElementById('examCharts');
+let lineChartInstance = null;
+
+function openNav(){ document.getElementById("mySidebar").style.width="250px";document.getElementById("main").style.marginLeft="250px";}
+function closeNav(){ document.getElementById("mySidebar").style.width="0";document.getElementById("main").style.marginLeft="0";}
+
+function saveGrades(){ localStorage.setItem("grades", JSON.stringify(grades)); } 
+
+function addGrade(){
+    const examName=document.getElementById('examName').value.trim();
+    const courseName=document.getElementById('courseName').value.trim();
+    const score=parseFloat(document.getElementById('score').value);
+    const totalScore=parseFloat(document.getElementById('totalScore').value);
+    if(!examName||!courseName||isNaN(score)||isNaN(totalScore)||score<0||score>totalScore) return alert("Invalid details");
+    grades.push({examName,courseName,score,totalScore});
+    saveGrades();
+    renderGrades();
+}
+
+function renderGrades(){
+    gradesList.innerHTML='';
+    if(grades.length===0){ averageScoreSpan.textContent='N/A'; return; }
+    let grouped={};
+    let totalWeighted=0, total=0;
+    grades.forEach((g,i)=>{
+        if(!grouped[g.examName]) grouped[g.examName]=[];
+        grouped[g.examName].push({...g,index:i});
+        totalWeighted+=g.score/g.totalScore; total++;
+    });
+    for(const exam in grouped){
+        const examDiv=document.createElement('div');
+        examDiv.innerHTML=`<h4>${exam}</h4>`;
+        grouped[exam].forEach(g=>{
+            const item=document.createElement('div');
+            item.className='grade-item';
+            item.innerHTML=`<span>${g.courseName}: ${g.score}/${g.totalScore}</span>
+                            <button class="delete-btn" onclick="deleteGrade(${g.index})">Delete</button>`;
+            examDiv.appendChild(item);
+        });
+        gradesList.appendChild(examDiv);
+    }
+    averageScoreSpan.textContent=((totalWeighted/total)*100).toFixed(2)+"%";
+    updateCharts(grouped);
+}
+
+function deleteGrade(index){
+    grades.splice(index,1);
+    saveGrades();
+    renderGrades();
+}
+
+function toggleCharts(){ chartsContainer.style.display=chartsContainer.style.display==='none'?'block':'none'; }
+
+function updateCharts(grouped){
+    examChartsDiv.innerHTML='';
+    for(const exam in grouped){
+        const canvas=document.createElement('canvas');
+        examChartsDiv.appendChild(canvas);
+        new Chart(canvas,{
+            type:'bar',
+            data:{
+                labels:grouped[exam].map(g=>g.courseName),
+                datasets:[{
+                    label:`${exam} %`,
+                    data:grouped[exam].map(g=>(g.score/g.totalScore*100).toFixed(2)),
+                    backgroundColor:[
+                        '#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'
+                    ],
+                    borderRadius:6,
+                    barPercentage:0.6,
+                    categoryPercentage:0.8
+                }]
+            },
+            options:{
+                responsive:true,
+                plugins:{legend:{display:false}},
+                scales:{y:{beginAtZero:true,max:100,title:{display:true,text:'Percentage (%)'}}}
+            }
+        });
+    }
+    const exams=Object.keys(grouped);
+    const avgScores=exams.map(exam=>{
+        const arr=grouped[exam];return (arr.reduce((a,b)=>a+b.score/b.totalScore,0)/arr.length*100).toFixed(2);
+    });
+    const ctx=document.getElementById('lineChart').getContext('2d');
+    if(lineChartInstance) lineChartInstance.destroy();
+    lineChartInstance=new Chart(ctx,{
+        type:'line',
+        data:{
+            labels:exams,
+            datasets:[{
+                label:'Overall %',
+                data:avgScores,
+                borderColor:'rgb(220,84,84)',
+                backgroundColor:'rgba(220,84,84,0.3)',
+                fill:true,
+                tension:0.3
+            }]
+        }
+    });
+}
+
+renderGrades();
+</script>
+</body>
+</html>
+
